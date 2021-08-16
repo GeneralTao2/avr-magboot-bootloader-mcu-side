@@ -32,7 +32,7 @@ IHEX=testapp.ihex
 SRCS=main.c
 OBJS=$(SRCS:%.c=%.o)
 
-MCU=atmega328p
+MCU=atmega32
 
 CFLAGS  += -Wall -pedantic -Os -g -std=c99 -mmcu=$(MCU) -DF_CPU=16000000UL
 LDFLAGS += -mmcu=$(MCU)

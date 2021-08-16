@@ -8,35 +8,38 @@
  *
  * magboot is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with magboot.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdint.h>
-#include <avr/io.h>
 
-void uart_putc(uint8_t ch)
-{
-	loop_until_bit_is_set(UCSR0A, UDRE0);
-	UDR0 = ch;
+#include <avr/io.h>
+#include "uart.h" 
+
+#define UART_UBRR (uint16_t)( ( (F_CPU / 16 / BAUD_RATE) ) - 1)
+
+void UART_WriteChar(uint8_t ch)
+{ 
+	loop_until_bit_is_set(UCSRA, UDRE);   
+	UDR = ch;
 }
 
-uint8_t uart_getc(void)
+uint8_t UART_ReadChar(void)
 {
-	uint8_t ch;
+	uint8_t ch;   
 
-	loop_until_bit_is_set(UCSR0A, RXC0);
-	ch = UDR0;
+	loop_until_bit_is_set(UCSRA, RXC);
+	ch = UDR;
 
 	return ch;
 }
 
-void uart_init()
+void UART_Init(void)
 {
-	UCSR0A = _BV(U2X0);
-	UCSR0B = _BV(RXEN0) | _BV(TXEN0);
-	UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
-	UBRR0L = (uint8_t)((F_CPU + BAUD_RATE * 4L)/(BAUD_RATE * 8L) - 1);
+	UCSRB = _BV(RXEN) | _BV(TXEN);
+	UCSRC = _BV(UCSZ0) | _BV(UCSZ1);
+	UBRRH = (uint8_t)(UART_UBRR >> 8);
+	UBRRL = (uint8_t)(UART_UBRR); 
 }

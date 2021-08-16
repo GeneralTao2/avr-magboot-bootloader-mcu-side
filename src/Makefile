@@ -20,58 +20,67 @@ OBJDUMP=avr-objdump
 OBJCOPY=avr-objcopy
 STRIP=avr-strip
 
-PROGTYPE=stk500v2
-PROGPORT=/dev/avrusb0
-AVRDUDE=avrdude -p $(MCU) -c $(PROGTYPE) -P $(PROGPORT)
+PROGTYPE=usbasp
+#PROGPORT=/dev/avrusb0
+AVRDUDE=avrdude -p $(MCU) -c $(PROGTYPE) # -P $(PROGPORT)
 
-HWUART=magboot_hw
-SWUART=magboot_sw
-HWUART_IHEX=magboot_hw.ihex
-SWUART_IHEX=magboot_sw.ihex
-HWUART_BIN=magboot_hw.bin
-SWUART_BIN=magboot_sw.bin
+BUILD_FOLDER_PATH=/Build/
+DBAUD_RATE=250000
+
+UART_HW=magboot_hw
+UART_SW=magboot_sw
+UART_HW_HEX=magboot_hw.hex
+UART_SW_HEX=magboot_sw.hex
+UART_HW_BIN=magboot_hw.bin
+UART_SW_BIN=magboot_sw.bin
+
+UART_SW_C=uart_sw.c
+UART_HW_C=uart_hw.c
+UART_H=uart.h
 
 COMMON_OBJS=magboot.o
-HWUART_OBJS=hwuart.o
-SWUART_OBJS=swuart.o
+UART_HW_OBJS=uart_hw.o
+UART_SW_OBJS=uart_sw.o 
 
 #OPTIMIZE = -Os -fno-inline-small-functions -fno-split-wide-types -mshort-calls
 OPTIMIZE = -Os
-CFLAGS += -g -Wall $(OPTIMIZE) -mmcu=$(MCU) -include config.h -DBAUD_RATE=19200
+CFLAGS += -g -Wall $(OPTIMIZE) -mmcu=$(MCU) -include config.h -D BAUD_RATE=$(DBAUD_RATE)
 LDFLAGS += -Wl,--section-start=.text=$(BOOTADDR)
 
 # Target definition
-MCU=atmega328p
-HFUSE=0xdc
-BOOTADDR=0x7c00
+MCU=atmega32
+HFUSE=0xd0
+BOOTADDR=0x7000
 
 .PHONY: all
-all: $(HWUART_IHEX) $(SWUART_IHEX) $(SWUART_BIN) $(HWUART_BIN)
+all: $(UART_HW_HEX) $(UART_SW_HEX) $(UART_SW_BIN) $(UART_HW_BIN)
 
-$(HWUART): $(COMMON_OBJS) $(HWUART_OBJS)
+$(UART_HW): $(COMMON_OBJS) $(UART_HW_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
-$(SWUART): $(COMMON_OBJS) $(SWUART_OBJS)
+$(UART_SW): $(COMMON_OBJS) $(UART_SW_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
-$(HWUART_IHEX): $(HWUART)
+
+
+$(UART_HW_HEX): $(UART_HW)
 	$(OBJCOPY) -j .text -j .data -S -O ihex $^ $@
 
-$(SWUART_IHEX): $(SWUART)
+$(UART_SW_HEX): $(UART_SW)
 	$(OBJCOPY) -j .text -j .data -S -O ihex $^ $@
 
-$(HWUART_BIN): $(HWUART)
+$(UART_HW_BIN): $(UART_HW)
 	$(OBJCOPY) -j .text -j .data -S -O binary $^ $@
 
-$(SWUART_BIN): $(SWUART)
+$(UART_SW_BIN): $(UART_SW)
 	$(OBJCOPY) -j .text -j .data -S -O binary $^ $@
 
 .PHONY: flash_sw
-flash_sw: $(SWUART_IHEX)
+flash_sw: $(UART_SW_HEX)
 	$(AVRDUDE) -e -U flash:w:$^
 
 .PHONY: flash_hw
-flash_hw: $(HWUART_IHEX)
+flash_hw: $(UART_HW_HEX)
 	$(AVRDUDE) -e -U flash:w:$^
 
 .PHONY: fusedump
@@ -88,4 +97,4 @@ flashdump:
 
 .PHONY: clean
 clean:
-	rm -f $(COMMON_OBJS) $(HWUART) $(HWUART_IHEX) $(HWUART_OBJS) $(HWUART_BIN) $(SWUART) $(SWUART_IHEX) $(SWUART_OBJS) $(SWUART_BIN)
+	rm -f $(COMMON_OBJS) $(UART_HW) $(UART_HW_HEX) $(UART_HW_OBJS) $(UART_HW_BIN) $(UART_SW) $(UART_SW_HEX) $(UART_SW_OBJS) $(UART_SW_BIN)

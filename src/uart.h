@@ -18,9 +18,10 @@
 #define _UART_H_
 
 #include <stdint.h>
-
-void uart_putc(uint8_t);
-uint8_t uart_getc(void);
-void uart_init();
-
+ 
+void UART_WriteChar(uint8_t);
+uint8_t UART_ReadChar(void);
+void UART_Init();
+  
 #endif
+ 

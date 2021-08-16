@@ -38,7 +38,7 @@ FCPU        Target clock frequency
 ```
 
 Unless you plan to use the software serialport implementation (SWUART), you do
-not have to change any of the CONFIG_SWUART_* directives.
+not have to change any of the CFG_SWUART_* directives.
 
 3) Build and program the device:
 

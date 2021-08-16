@@ -19,9 +19,9 @@
 #include <util/delay.h>
 #include <avr/wdt.h>
 
-#define LED_DIR  DDRB
-#define LED_PORT PORTB
-#define LED_BIT  PB5
+#define LED_DIR  DDRA
+#define LED_PORT PORTA
+#define LED_BIT  PB4
 
 int main(void)
 {
